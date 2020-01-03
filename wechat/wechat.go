@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 )
 
@@ -23,12 +24,30 @@ type (
 		Markdown map[string]interface{} `json:"markdown"`
 	}
 
+	Build struct {
+		Owner   string
+		Name    string
+		Tag     string
+		Event   string
+		Number  int
+		Commit  string
+		Ref     string
+		Branch  string
+		Author  string
+		Message string
+		Status  string
+		Link    string
+		Started int64
+		Created int64
+	}
+
 	Response struct {
 		Errcode int    `json:"errcode"`
 		Errmsg  string `json:"errmsg"`
 	}
 
 	WeChat struct {
+		Build   Build
 		Url     string
 		MsgType string
 		ToUser  string
@@ -56,8 +75,28 @@ func (c *WeChat) MarkdownMessage(md string, at ...string) error {
 	return c.call(buf)
 }
 
+func (c *WeChat) Template(temp string) ([]byte, error) {
+	tmpl, err := template.New("wechat").Parse(temp)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, c.Build)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
 func (c *WeChat) call(buf []byte) error {
-	resp, err := c.postJson(c.Url, buf)
+	tempBuf, err := c.Template(string(buf))
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.postJson(c.Url, tempBuf)
 	if err != nil {
 		return err
 	}
