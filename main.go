@@ -17,22 +17,26 @@ func main() {
 	app.Version = "1.0.0"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  "url",
-			Usage: "The wechat work robot url",
+			Name:   "url",
+			Usage:  "The wechat work robot url",
+			EnvVar: "PLUGIN_URL",
 		},
 		cli.StringFlag{
-			Name:  "msgtype",
-			Usage: "The type of message, either text, markdown",
-			Value: "text",
+			Name:   "msgtype",
+			Usage:  "The type of message, either text, markdown",
+			Value:  "text",
+			EnvVar: "PLUGIN_MSGTYPE",
 		},
 		cli.StringFlag{
-			Name:  "touser",
-			Usage: "The users to send the message to, @all for all users",
-			Value: "@all",
+			Name:   "touser",
+			Usage:  "The users to send the message to, @all for all users",
+			Value:  "@all",
+			EnvVar: "PLUGIN_TOUSER",
 		},
 		cli.StringFlag{
-			Name:  "content",
-			Usage: "message content",
+			Name:   "content",
+			Usage:  "message content",
+			EnvVar: "PLUGIN_CONTENT",
 		},
 
 		//template
