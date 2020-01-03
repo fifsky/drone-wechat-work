@@ -1,10 +1,16 @@
-FROM plugins/base:multiarch
-MAINTAINER Clement Venard <cvenard@gmail.com>
+FROM golang:1.13-alpine as builder
+ENV GOOS=linux
+ENV GOARCH=amd64
+ENV CGO_ENABLED=0
+WORKDIR /build
+COPY . .
+RUN go build -ldflags "-s -w" -o drone-wechat .
 
-LABEL org.label-schema.version=latest
-LABEL org.label-schema.vcs-url="https://github.com/clem109/drone-wechat.git"
-LABEL org.label-schema.name="Drone Wechat"
-LABEL org.label-schema.schema-version="1.0"
+FROM alpine:latest
+RUN apk update && \
+  apk add \
+  ca-certificates && \
+  rm -rf /var/cache/apk/*
 
-ADD release/linux/amd64/drone-wechat /bin/
+COPY --from=builder /build/drone-wechat /bin/
 ENTRYPOINT ["/bin/drone-wechat"]
