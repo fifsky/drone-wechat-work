@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -143,5 +144,13 @@ func run(c *cli.Context) error {
 		ToUser:  c.String("touser"),
 		Content: c.String("content"),
 	}
-	return robot.Send()
+
+	err := robot.Send()
+
+	if err != nil {
+		fmt.Println("success")
+		return nil
+	}
+
+	return err
 }

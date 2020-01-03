@@ -82,7 +82,6 @@ func (c *WeChat) MarkdownMessage(md string, at ...string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("====>", buf.String())
 
 	return c.call(buf)
 }
