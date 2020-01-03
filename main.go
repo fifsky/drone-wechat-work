@@ -22,8 +22,8 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "msgtype",
-			Usage: "The type of message, either text, textcard",
-			Value: "textcard",
+			Usage: "The type of message, either text, markdown",
+			Value: "text",
 		},
 		cli.StringFlag{
 			Name:  "touser",
