@@ -55,6 +55,17 @@ type (
 	}
 )
 
+func jsonEncode(d interface{}) (*bytes.Buffer, error) {
+	buf := &bytes.Buffer{}
+	jsonEncoder := json.NewEncoder(buf)
+	jsonEncoder.SetEscapeHTML(false)
+	err := jsonEncoder.Encode(d)
+	if err != nil {
+		return nil, err
+	}
+	return buf, nil
+}
+
 func (c *WeChat) MarkdownMessage(md string, at ...string) error {
 	we := &MarkdownRequest{
 		Msgtype: "markdown",
@@ -67,10 +78,11 @@ func (c *WeChat) MarkdownMessage(md string, at ...string) error {
 		we.Markdown["mentioned_mobile_list"] = at
 	}
 
-	buf, err := json.Marshal(we)
+	buf, err := jsonEncode(we)
 	if err != nil {
 		return err
 	}
+	fmt.Println("====>", buf.String())
 
 	return c.call(buf)
 }
@@ -78,25 +90,20 @@ func (c *WeChat) MarkdownMessage(md string, at ...string) error {
 func (c *WeChat) Template(temp string) ([]byte, error) {
 	tmpl, err := template.New("wechat").Parse(temp)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("template parse error %w %s", err, temp)
 	}
 
 	var buf bytes.Buffer
 	err = tmpl.Execute(&buf, c.Build)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("template execute error %w", err)
 	}
 
 	return buf.Bytes(), nil
 }
 
-func (c *WeChat) call(buf []byte) error {
-	tempBuf, err := c.Template(string(buf))
-	if err != nil {
-		return err
-	}
-
-	resp, err := c.postJson(c.Url, tempBuf)
+func (c *WeChat) call(buf *bytes.Buffer) error {
+	resp, err := c.postJson(c.Url, buf)
 	if err != nil {
 		return err
 	}
@@ -129,7 +136,7 @@ func (c *WeChat) Message(content string, at ...string) error {
 		we.Text["mentioned_mobile_list"] = at
 	}
 
-	buf, err := json.Marshal(we)
+	buf, err := jsonEncode(we)
 	if err != nil {
 		return err
 	}
@@ -137,8 +144,7 @@ func (c *WeChat) Message(content string, at ...string) error {
 	return c.call(buf)
 }
 
-func (c *WeChat) postJson(url string, data []byte) (*http.Response, error) {
-	body := bytes.NewBuffer(data)
+func (c *WeChat) postJson(url string, body *bytes.Buffer) (*http.Response, error) {
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
 		return nil, err
@@ -160,12 +166,17 @@ func (c *WeChat) Send() error {
 		at = strings.Split(c.ToUser, ",")
 	}
 
+	tempBuf, err := c.Template(c.Content)
+	if err != nil {
+		return err
+	}
+
 	if c.MsgType == "text" {
-		return c.Message(c.Content, at...)
+		return c.Message(strings.TrimSpace(string(tempBuf)), at...)
 	}
 
 	if c.MsgType == "markdown" {
-		return c.MarkdownMessage(c.Content, at...)
+		return c.MarkdownMessage(strings.TrimSpace(string(tempBuf)), at...)
 	}
 
 	return fmt.Errorf("no support msgtype %s", c.MsgType)
