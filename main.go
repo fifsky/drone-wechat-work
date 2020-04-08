@@ -92,7 +92,6 @@ func main() {
 		cli.StringFlag{
 			Name:   "build.status",
 			Usage:  "build status",
-			Value:  "success",
 			EnvVar: "DRONE_BUILD_STATUS",
 		},
 		cli.StringFlag{
