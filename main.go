@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -12,9 +12,12 @@ import (
 )
 
 func main() {
+	log.Println("Start Nofity")
 
 	if _, err := os.Stat("/run/drone/env"); err == nil {
 		_ = dotenv.Overload("/run/drone/env")
+		str, _ := ioutil.ReadFile("/run/drone/env")
+		log.Println(string(str))
 	}
 
 	app := cli.NewApp()
@@ -154,8 +157,9 @@ func run(c *cli.Context) error {
 	err := robot.Send()
 
 	if err != nil {
-		fmt.Println("success")
-		return nil
+		log.Println("Nofity fail", err)
+	} else {
+		log.Println("Nofity success, DRONE_BUILD_STATUS:", os.Getenv("DRONE_BUILD_STATUS"))
 	}
 
 	return err
