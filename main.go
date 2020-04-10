@@ -5,12 +5,18 @@ import (
 	"log"
 	"os"
 
+	"github.com/goapt/dotenv"
 	"github.com/urfave/cli"
 
 	"github.com/fifsky/drone-wechat-work/wechat"
 )
 
 func main() {
+
+	if _, err := os.Stat("/run/drone/env"); err == nil {
+		_ = dotenv.Overload("/run/drone/env")
+	}
+
 	app := cli.NewApp()
 	app.Name = "WeChat work robot plugin"
 	app.Usage = "Wechat Work robot plugin"
@@ -40,7 +46,7 @@ func main() {
 			EnvVar: "PLUGIN_CONTENT",
 		},
 
-		//template
+		// template
 		cli.StringFlag{
 			Name:   "repo.owner",
 			Usage:  "repository owner",
