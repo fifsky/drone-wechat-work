@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	log.Println("Start Nofity")
+	log.Println("Start notify")
 
 	if _, err := os.Stat("/run/drone/env"); err == nil {
 		_ = dotenv.Overload("/run/drone/env")
@@ -157,9 +157,9 @@ func run(c *cli.Context) error {
 	err := robot.Send()
 
 	if err != nil {
-		log.Println("Nofity fail", err)
+		log.Println("notify fail", err)
 	} else {
-		log.Println("Nofity success, DRONE_BUILD_STATUS:", os.Getenv("DRONE_BUILD_STATUS"))
+		log.Println("notify success, DRONE_BUILD_STATUS:", os.Getenv("DRONE_BUILD_STATUS"))
 	}
 
 	return err
