@@ -88,6 +88,11 @@ func main() {
 			EnvVar: "DRONE_COMMIT_MESSAGE",
 		},
 		cli.StringFlag{
+			Name:   "failed.steps",
+			Usage:  "failed steps",
+			EnvVar: "DRONE_FAILED_STEPS",
+		},
+		cli.StringFlag{
 			Name:   "build.event",
 			Value:  "push",
 			Usage:  "build event",
