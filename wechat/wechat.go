@@ -76,12 +76,7 @@ func (c *WeChat) MarkdownMessage(md string, at ...string) error {
 		we.Markdown["mentioned_mobile_list"] = at
 	}
 
-	buf, err := jsonEncode(we)
-	if err != nil {
-		return err
-	}
-
-	return c.call(buf)
+	return c.call(we)
 }
 
 func (c *WeChat) Template(temp string) ([]byte, error) {
@@ -99,11 +94,11 @@ func (c *WeChat) Template(temp string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (c *WeChat) call(buf *bytes.Buffer) error {
+func (c *WeChat) call(body any) error {
 	var errs []string
 
 	for _, url := range c.Url {
-		resp, err := c.postJson(url, buf)
+		resp, err := c.postJson(url, body)
 		if err != nil {
 			errs = append(errs, fmt.Sprintf("request to %s failed: %v", url, err))
 			continue
@@ -146,16 +141,16 @@ func (c *WeChat) Message(content string, at ...string) error {
 		we.Text["mentioned_mobile_list"] = at
 	}
 
-	buf, err := jsonEncode(we)
-	if err != nil {
-		return err
-	}
-
-	return c.call(buf)
+	return c.call(we)
 }
 
-func (c *WeChat) postJson(url string, body *bytes.Buffer) (*http.Response, error) {
-	req, err := http.NewRequest("POST", url, body)
+func (c *WeChat) postJson(url string, body any) (*http.Response, error) {
+	bodyByes, err := jsonEncode(body)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", url, bodyByes)
 	if err != nil {
 		return nil, err
 	}
