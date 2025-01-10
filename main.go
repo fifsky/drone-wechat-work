@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -16,7 +15,7 @@ func main() {
 
 	if _, err := os.Stat("/run/drone/env"); err == nil {
 		_ = dotenv.Overload("/run/drone/env")
-		str, _ := ioutil.ReadFile("/run/drone/env")
+		str, _ := os.ReadFile("/run/drone/env")
 		log.Println(string(str))
 	}
 
@@ -26,7 +25,7 @@ func main() {
 	app.Action = run
 	app.Version = "1.0.0"
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
+		cli.StringSliceFlag{
 			Name:   "url",
 			Usage:  "The wechat work robot url",
 			EnvVar: "PLUGIN_URL",
@@ -153,7 +152,7 @@ func run(c *cli.Context) error {
 			Started: c.Int64("build.started"),
 			Created: c.Int64("build.created"),
 		},
-		Urls:    c.StringSlice("urls"),
+		Url:     c.StringSlice("url"),
 		MsgType: c.String("msgtype"),
 		ToUser:  c.String("touser"),
 		Content: c.String("content"),

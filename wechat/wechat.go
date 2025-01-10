@@ -46,7 +46,7 @@ type (
 
 	WeChat struct {
 		Build   Build
-		Urls    []string
+		Url     []string
 		MsgType string
 		ToUser  string
 		Content string
@@ -102,7 +102,7 @@ func (c *WeChat) Template(temp string) ([]byte, error) {
 func (c *WeChat) call(buf *bytes.Buffer) error {
 	var errs []string
 
-	for _, url := range c.Urls {
+	for _, url := range c.Url {
 		resp, err := c.postJson(url, buf)
 		if err != nil {
 			errs = append(errs, fmt.Sprintf("request to %s failed: %v", url, err))
