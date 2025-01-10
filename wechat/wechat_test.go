@@ -8,7 +8,7 @@ import (
 
 func TestWechatRobot_Message(t *testing.T) {
 	plugin := WeChat{
-		Url:     fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=%s", os.Getenv("WECHAT_ROBOT_TOKEN")),
+		Urls:    []string{fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=%s", os.Getenv("WECHAT_ROBOT_TOKEN"))},
 		MsgType: "text",
 		Content: "hello",
 	}
@@ -23,7 +23,7 @@ func TestWechatRobot_MarkdownMessage(t *testing.T) {
 		Build: Build{
 			Status: "success",
 		},
-		Url:     fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=%s", os.Getenv("WECHAT_ROBOT_TOKEN")),
+		Urls:    []string{fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=%s", os.Getenv("WECHAT_ROBOT_TOKEN"))},
 		MsgType: "markdown",
 		Content: `
 {{if eq .Status "success" }}

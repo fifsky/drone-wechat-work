@@ -153,7 +153,7 @@ func run(c *cli.Context) error {
 			Started: c.Int64("build.started"),
 			Created: c.Int64("build.created"),
 		},
-		Url:     c.String("url"),
+		Urls:    c.StringSlice("urls"),
 		MsgType: c.String("msgtype"),
 		ToUser:  c.String("touser"),
 		Content: c.String("content"),

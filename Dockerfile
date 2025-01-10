@@ -1,7 +1,4 @@
-FROM golang:1.13-alpine as builder
-ENV GOOS=linux
-ENV GOARCH=amd64
-ENV CGO_ENABLED=0
+FROM golang:1.23-alpine as builder
 WORKDIR /build
 COPY . .
 RUN go build -ldflags "-s -w" -o drone-wechat .
