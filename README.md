@@ -1,4 +1,5 @@
 # drone-wechat-work
+[![Build and Test](https://github.com/fifsky/drone-wechat-work/actions/workflows/build.yml/badge.svg)](https://github.com/fifsky/drone-wechat-work/actions/workflows/build.yml)
 
 wechat work robot plugin for drone
 
