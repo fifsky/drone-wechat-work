@@ -3,11 +3,9 @@ package wechat
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
-	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -48,7 +46,7 @@ type (
 
 	WeChat struct {
 		Build   Build
-		Url     string
+		Url     []string
 		MsgType string
 		ToUser  string
 		Content string
@@ -78,12 +76,7 @@ func (c *WeChat) MarkdownMessage(md string, at ...string) error {
 		we.Markdown["mentioned_mobile_list"] = at
 	}
 
-	buf, err := jsonEncode(we)
-	if err != nil {
-		return err
-	}
-
-	return c.call(buf)
+	return c.call(we)
 }
 
 func (c *WeChat) Template(temp string) ([]byte, error) {
@@ -101,23 +94,36 @@ func (c *WeChat) Template(temp string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (c *WeChat) call(buf *bytes.Buffer) error {
-	resp, err := c.postJson(c.Url, buf)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
+func (c *WeChat) call(body any) error {
+	var errs []string
 
-	if data, err := ioutil.ReadAll(resp.Body); err == nil {
-		ret := &Response{}
-		err := json.Unmarshal(data, ret)
+	for _, url := range c.Url {
+		resp, err := c.postJson(url, body)
 		if err != nil {
-			return err
+			errs = append(errs, fmt.Sprintf("request to %s failed: %v", url, err))
+			continue
+		}
+		defer resp.Body.Close()
+
+		data, err := io.ReadAll(resp.Body)
+		if err != nil {
+			errs = append(errs, fmt.Sprintf("reading response from %s failed: %v", url, err))
+			continue
+		}
+
+		ret := &Response{}
+		if err := json.Unmarshal(data, ret); err != nil {
+			errs = append(errs, fmt.Sprintf("parsing response from %s failed: %v", url, err))
+			continue
 		}
 
 		if ret.Errcode != 0 {
-			return errors.New("ding response error:" + ret.Errmsg + "[" + strconv.Itoa(ret.Errcode) + "]")
+			errs = append(errs, fmt.Sprintf("push to %s failed: %s [%d]", url, ret.Errmsg, ret.Errcode))
 		}
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf("encountered following errors while sending messages:\n%s", strings.Join(errs, "\n"))
 	}
 
 	return nil
@@ -135,16 +141,16 @@ func (c *WeChat) Message(content string, at ...string) error {
 		we.Text["mentioned_mobile_list"] = at
 	}
 
-	buf, err := jsonEncode(we)
-	if err != nil {
-		return err
-	}
-
-	return c.call(buf)
+	return c.call(we)
 }
 
-func (c *WeChat) postJson(url string, body *bytes.Buffer) (*http.Response, error) {
-	req, err := http.NewRequest("POST", url, body)
+func (c *WeChat) postJson(url string, body any) (*http.Response, error) {
+	bodyByes, err := jsonEncode(body)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", url, bodyByes)
 	if err != nil {
 		return nil, err
 	}

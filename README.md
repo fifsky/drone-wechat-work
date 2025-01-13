@@ -36,7 +36,7 @@ wechat work robot plugin for drone
 
 | option | type | required | default | description |
 | --- | --- | --- | --- | --- |
-| url | string | Yes | none | The full address of webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxxx |
+| url | []string | Yes | none | The full address of webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxxx |
 | type | string | No | text | message type，support (text,markdown) |
 | content | string | Yes | none |  Message content, text or markdown or json string |
 | touser | string | No | none | At user,Use commas to separate, for example: 13812345678,13898754321 or all |
