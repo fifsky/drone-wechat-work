@@ -14,16 +14,16 @@ wechat work robot plugin for drone
       msgtype: markdown
       content: |
         {{if eq .Status "success" }}
-        #### 🎉 ${DRONE_REPO} 构建成功
-        > Commit: [${DRONE_COMMIT_MESSAGE}](${DRONE_COMMIT_LINK})
-        > Author: ${DRONE_COMMIT_AUTHOR}
-        > [点击查看](${DRONE_BUILD_LINK})
+        #### 🎉 ${DRONE_REPO} [构建成功](${DRONE_BUILD_LINK})
+        CommitID: [${DRONE_COMMIT_SHA:0:8}](${DRONE_COMMIT_LINK})
+        Author: ${DRONE_COMMIT_AUTHOR}
+        {{ .Message }}
         {{else}}
-        #### ❌ ${DRONE_REPO} 构建失败
-        > Commit: [${DRONE_COMMIT_MESSAGE}](${DRONE_COMMIT_LINK})
-        > Author: ${DRONE_COMMIT_AUTHOR}
-        > 请立即修复!!!
-        > [点击查看](${DRONE_BUILD_LINK})
+        #### ❌ ${DRONE_REPO} [构建失败](${DRONE_BUILD_LINK})
+        CommitID: [${DRONE_COMMIT_SHA:0:8}](${DRONE_COMMIT_LINK})
+        Author: ${DRONE_COMMIT_AUTHOR}
+        Failed Steps: ${DRONE_FAILED_STEPS}
+        {{ .Message }}
         {{end}}
     when:
       status:
